@@ -70,14 +70,9 @@ export class PageLoader {
       if (!(pageElement instanceof Element)) {
         throw Error('pageElement must be an instance of Element.');
       }
-      // store meta info
-      if (ons) {
-        if (!ons._meta) {
-            ons._meta = {};
-        }
-        ons._meta.PageLoader = {
-            page, parent, params
-        };
+      // store meta info on attribute 'target' of page element
+      pageElement._meta = {
+          PageLoader: { page, parent, params }
       }
       done(pageElement);
     }, error);
