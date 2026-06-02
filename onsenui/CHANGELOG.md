@@ -1,6 +1,12 @@
 
 CHANGELOG
 ====
+2.12.9
+---
+### Bug Fixes
+
+* ons.platform.isIPhoneX: Support iPhone 16 Pro, 16 Pro Max, 17, 17 Pro, 17 Pro Max, and iPhone Air ([#3089](https://github.com/OnsenUI/OnsenUI/pull/3089)).
+
 2.12.8
 ---
 ### Bug Fixes

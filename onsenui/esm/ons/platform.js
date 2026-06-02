@@ -102,8 +102,8 @@ class Platform {
    * @method isIPhoneX
    * @signature isIPhoneX()
    * @description
-   *   [en]Returns whether the device is iPhone X, XS, XS Max, XR, 11, 11 Pro, 11 Pro Max, 12 Mini, 12, 12 Pro or 12 Pro Max, 13 Mini, 13, 13 Pro, 13 Pro Max, 14, 14 Plus, 14 Pro, 14 Pro Max.[/en]
-   *   [ja]iPhone X や XS、XS Max、XR、11、11 Pro、11 Pro Max、12 Mini、12、12 Pro、12 Pro Max、13 Mini、13、13 Pro、13 Pro Max、14、14 Plus、14 Pro、または14 Pro Max上で実行されているかどうかを返します。[/ja]
+   *   [en]Returns whether the device is iPhone X, XS, XS Max, XR, or later models with notch/Dynamic Island (11 series, 12 series, 13 series, 14 series, 15 series, 16 series, 17 series, Air).[/en]
+   *   [ja]iPhone X、XS、XS Max、XR、またはノッチ/Dynamic Islandを持つ以降のモデル（11シリーズ、12シリーズ、13シリーズ、14シリーズ、15シリーズ、16シリーズ、17シリーズ、Air）上で実行されているかどうかを返します。[/ja]
    * @return {Boolean}
    */
   isIPhoneX() {
@@ -129,14 +129,53 @@ class Platform {
         window.screen.width === 428 && window.screen.height === 926 || // portrait
         window.screen.width === 926 && window.screen.height === 428 || // landscape
 
-        // 14 Pro Max
+        // 14 Pro Max, 15 Plus, 15 Pro Max, 16 Plus
         window.screen.width === 430 && window.screen.height === 932 || // portrait
         window.screen.width === 932 && window.screen.height === 430 || // landscape
 
-          // 14 Pro
-        window.screen.width === 393 && window.screen.height === 852 ||// portrait
-        window.screen.width === 852 && window.screen.height === 393 // landscape
+        // 14 Pro, 15, 15 Pro, 16
+        window.screen.width === 393 && window.screen.height === 852 || // portrait
+        window.screen.width === 852 && window.screen.height === 393 || // landscape
+
+        // 16 Pro Max, 17 Pro Max
+        window.screen.width === 440 && window.screen.height === 956 || // portrait
+        window.screen.width === 956 && window.screen.height === 440 || // landscape
+
+        // 16 Pro, 17, 17 Pro
+        window.screen.width === 402 && window.screen.height === 874 || // portrait
+        window.screen.width === 874 && window.screen.height === 402 || // landscape
+
+        // Air
+        window.screen.width === 420 && window.screen.height === 912 || // portrait
+        window.screen.width === 912 && window.screen.height === 420 // landscape
       );
+  }
+
+  /**
+   * @method getSafeAreaInsets
+   * @signature getSafeAreaInsets()
+   * @description
+   *   [en]Returns the safe area insets for the current device and orientation in pixels. Returns {top: 0, right: 0, bottom: 0, left: 0} if not applicable.[/en]
+   *   [ja]現在のデバイスと向きのセーフエリアのインセットをピクセル単位で返します。該当しない場合は {top: 0, right: 0, bottom: 0, left: 0} を返します。[/ja]
+   * @return {Object}
+   */
+  getSafeAreaInsets() {
+    if (!this.isIPhone()) {
+      return { top: 0, right: 0, bottom: 0, left: 0 };
+    }
+
+    const isPortrait = window.innerHeight > window.innerWidth;
+    const suffix = isPortrait ? 'portrait' : 'landscape';
+
+    const root = document.documentElement;
+    const computedStyle = getComputedStyle(root);
+
+    const top = parseInt(computedStyle.getPropertyValue(`--iphonex-safe-area-inset-top-${suffix}`), 10) || 0;
+    const right = parseInt(computedStyle.getPropertyValue(`--iphonex-safe-area-inset-right-${suffix}`), 10) || 0;
+    const bottom = parseInt(computedStyle.getPropertyValue(`--iphonex-safe-area-inset-bottom-${suffix}`), 10) || 0;
+    const left = parseInt(computedStyle.getPropertyValue(`--iphonex-safe-area-inset-left-${suffix}`), 10) || 0;
+
+    return { top, right, bottom, left };
   }
 
   /**
