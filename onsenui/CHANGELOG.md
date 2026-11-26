@@ -3,6 +3,11 @@ CHANGELOG
 ====
 2.12.9
 ---
+### New Features
+
+* ons.platform.getSafeAreaInsets(): Add API that returns the current safe area insets in pixels ([#3091](https://github.com/OnsenUI/OnsenUI/pull/3091)).
+* css-components: Use CSS `env()` for iPhone safe area insets ([#3091](https://github.com/OnsenUI/OnsenUI/pull/3091)).
+
 ### Bug Fixes
 
 * ons.platform.isIPhoneX: Support iPhone 16 Pro, 16 Pro Max, 17, 17 Pro, 17 Pro Max, and iPhone Air ([#3089](https://github.com/OnsenUI/OnsenUI/pull/3089)).

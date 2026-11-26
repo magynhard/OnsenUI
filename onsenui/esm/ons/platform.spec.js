@@ -121,6 +121,55 @@ describe('ons.platform', () => {
     });
   });
 
+  describe('#getSafeAreaInsets()', () => {
+    let styleEl;
+
+    beforeEach(() => {
+      // Mirror the shipped iphonex-support/global.css rules so the custom
+      // properties hold unevaluated max()/env() expressions, as on a real
+      // device. This guards against reading them with parseInt(), which would
+      // yield NaN -> 0 (see getSafeAreaInsets implementation).
+      styleEl = document.createElement('style');
+      styleEl.textContent =
+        '@supports (padding: max(env(safe-area-inset-top, 0px), 0px)) {' +
+        '  @media (orientation: portrait) { :root {' +
+        '    --iphonex-safe-area-inset-top-portrait: max(env(safe-area-inset-top, 0px), 44px);' +
+        '    --iphonex-safe-area-inset-right-portrait: env(safe-area-inset-right, 0px);' +
+        '    --iphonex-safe-area-inset-bottom-portrait: max(env(safe-area-inset-bottom, 0px), 34px);' +
+        '    --iphonex-safe-area-inset-left-portrait: env(safe-area-inset-left, 0px);' +
+        '  } }' +
+        '  @media (orientation: landscape) { :root {' +
+        '    --iphonex-safe-area-inset-top-landscape: env(safe-area-inset-top, 0px);' +
+        '    --iphonex-safe-area-inset-right-landscape: max(env(safe-area-inset-right, 0px), 44px);' +
+        '    --iphonex-safe-area-inset-bottom-landscape: max(env(safe-area-inset-bottom, 0px), 21px);' +
+        '    --iphonex-safe-area-inset-left-landscape: max(env(safe-area-inset-left, 0px), 44px);' +
+        '  } }' +
+        '}';
+      document.head.appendChild(styleEl);
+    });
+
+    afterEach(() => {
+      delete ons.platform.isIPhone;
+      styleEl.remove();
+    });
+
+    it('returns zero insets when not on an iPhone', () => {
+      ons.platform.isIPhone = () => false;
+      expect(ons.platform.getSafeAreaInsets()).to.eql({ top: 0, right: 0, bottom: 0, left: 0 });
+    });
+
+    it('resolves max()/env() custom properties to pixels instead of 0', () => {
+      ons.platform.isIPhone = () => true;
+      // No safe area exists in the test browser, so env() is 0 and the max()
+      // floors (44/34/21) win.
+      const isPortrait = window.innerHeight > window.innerWidth;
+      const expected = isPortrait
+        ? { top: 44, right: 0, bottom: 34, left: 0 }
+        : { top: 0, right: 44, bottom: 21, left: 44 };
+      expect(ons.platform.getSafeAreaInsets()).to.eql(expected);
+    });
+  });
+
   describe('#isIPad()', () => {
     it('returns false if platform is iPad', () => {
       expect(ons.platform.isIPad()).to.be.false;

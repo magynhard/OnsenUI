@@ -167,15 +167,32 @@ class Platform {
     const isPortrait = window.innerHeight > window.innerWidth;
     const suffix = isPortrait ? 'portrait' : 'landscape';
 
-    const root = document.documentElement;
-    const computedStyle = getComputedStyle(root);
+    // The --iphonex-safe-area-inset-* custom properties hold unevaluated
+    // max()/env() expressions, so reading them via getPropertyValue() returns a
+    // string like "max(0px, 44px)" and parseInt() yields NaN (-> 0). Apply the
+    // variables to a real property on a probe element instead: the browser
+    // resolves max()/env() at used-value time, so getComputedStyle() returns
+    // concrete pixels.
+    const probe = document.createElement('div');
+    probe.style.cssText =
+      'position:absolute;top:0;left:0;width:0;height:0;visibility:hidden;pointer-events:none;' +
+      `padding-top:var(--iphonex-safe-area-inset-top-${suffix}, 0px);` +
+      `padding-right:var(--iphonex-safe-area-inset-right-${suffix}, 0px);` +
+      `padding-bottom:var(--iphonex-safe-area-inset-bottom-${suffix}, 0px);` +
+      `padding-left:var(--iphonex-safe-area-inset-left-${suffix}, 0px);`;
+    document.documentElement.appendChild(probe);
 
-    const top = parseInt(computedStyle.getPropertyValue(`--iphonex-safe-area-inset-top-${suffix}`), 10) || 0;
-    const right = parseInt(computedStyle.getPropertyValue(`--iphonex-safe-area-inset-right-${suffix}`), 10) || 0;
-    const bottom = parseInt(computedStyle.getPropertyValue(`--iphonex-safe-area-inset-bottom-${suffix}`), 10) || 0;
-    const left = parseInt(computedStyle.getPropertyValue(`--iphonex-safe-area-inset-left-${suffix}`), 10) || 0;
+    const computedStyle = getComputedStyle(probe);
+    const insets = {
+      top: parseFloat(computedStyle.paddingTop) || 0,
+      right: parseFloat(computedStyle.paddingRight) || 0,
+      bottom: parseFloat(computedStyle.paddingBottom) || 0,
+      left: parseFloat(computedStyle.paddingLeft) || 0
+    };
 
-    return { top, right, bottom, left };
+    probe.remove();
+
+    return insets;
   }
 
   /**
